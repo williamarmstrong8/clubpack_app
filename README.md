@@ -1,23 +1,15 @@
-# Welcome to your Rork app
+# ClubPack App (Proof App)
 
 ## Project info
 
-This is a native cross-platform mobile app created with [Rork](https://rork.com)
+This is a native cross-platform mobile app for ClubPack - a platform for managing clubs, events, members, and features.
 
 **Platform**: Native iOS & Android app, exportable to web
 **Framework**: Expo Router + React Native
 
 ## How can I edit this code?
 
-There are several ways of editing your native mobile application.
-
-### **Use Rork**
-
-Simply visit [rork.com](https://rork.com) and prompt to build your app with AI.
-
-Changes made via Rork will be committed automatically to this GitHub repo.
-
-Whenever you make a change in your local code editor and push it to GitHub, it will be also reflected in Rork.
+You can edit this code using your preferred code editor.
 
 ### **Use your preferred code editor**
 
@@ -39,7 +31,7 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 bun i
 
-# Step 4: Start the instant web preview of your Rork app in your browser, with auto-reloading of your changes
+# Step 4: Start the instant web preview of your app in your browser, with auto-reloading of your changes
 bun run start-web
 
 # Step 5: Start iOS preview
@@ -70,7 +62,7 @@ This project is built with the most popular native mobile cross-platform technic
 
 ### **On your phone (Recommended)**
 
-1. **iOS**: Download the [Rork app from the App Store](https://apps.apple.com/app/rork) or [Expo Go](https://apps.apple.com/app/expo-go/id982107779)
+1. **iOS**: Download the [Expo Go app from the App Store](https://apps.apple.com/app/expo-go/id982107779)
 2. **Android**: Download the [Expo Go app from Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent)
 3. Run `bun run start` and scan the QR code from your development server
 
@@ -80,7 +72,7 @@ Run `bun start-web` to test in a web browser. Note: The browser preview is great
 
 ### **iOS Simulator / Android Emulator**
 
-You can test Rork apps in Expo Go or Rork iOS app. You don't need XCode or Android Studio for most features.
+You can test the app in Expo Go. You don't need XCode or Android Studio for most features.
 
 **When do you need Custom Development Builds?**
 
@@ -168,14 +160,15 @@ Alternative web deployment options:
 
 ## App Features
 
-This template includes:
+The ClubPack app includes:
 
 - **Cross-platform compatibility** - Works on iOS, Android, and Web
 - **File-based routing** with Expo Router
-- **Tab navigation** with customizable tabs
-- **Modal screens** for overlays and dialogs
+- **Tab navigation** with customizable tabs (Home, Features, Members, Data, Profile)
+- **Event management** - View and RSVP to club events
+- **Member directory** - Browse and search club members
 - **TypeScript support** for better development experience
-- **Async storage** for local data persistence
+- **Supabase integration** for authentication and data management
 - **Vector icons** with Lucide React Native
 
 ## Project Structure
@@ -309,11 +302,18 @@ For mobile apps, you'll configure your app's deep linking scheme in `app.json`.
 
 - Check [Expo's documentation](https://docs.expo.dev/) for native APIs
 - Browse [React Native's documentation](https://reactnative.dev/docs/getting-started) for core components
-- Visit [Rork's FAQ](https://rork.com/faq) for platform-specific questions
 
-## About Rork
+## About ClubPack App
 
-Rork builds fully native mobile apps using React Native and Expo - the same technology stack used by Discord, Shopify, Coinbase, Instagram, and nearly 30% of the top 100 apps on the App Store.
+ClubPack App is a native cross-platform mobile application built with React Native and Expo - the same technology stack used by Discord, Shopify, Coinbase, Instagram, and nearly 30% of the top 100 apps on the App Store.
 
-Your Rork app is production-ready and can be published to both the App Store and Google Play Store. You can also export your app to run on the web, making it truly cross-platform.
-# clubpack_app
+The app is production-ready and can be published to both the App Store and Google Play Store. You can also export your app to run on the web, making it truly cross-platform.
+
+## Features
+
+- **Club Management**: Manage clubs, members, and events
+- **Event RSVPs**: Track event attendance and RSVPs
+- **Member Directory**: Browse and search club members
+- **Features & Data**: Access club features and data
+- **User Profiles**: Customizable user profiles
+- **Authentication**: Secure user authentication with Supabase
