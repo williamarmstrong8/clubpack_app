@@ -1,19 +1,17 @@
-# ClubPack App (Proof App)
+# ClubPack Mobile App
 
 ## Project info
 
-This is a native cross-platform mobile app for ClubPack - a platform for managing clubs, events, members, and features.
+This is the native cross-platform mobile app for ClubPack - a platform for managing student clubs and organizations.
 
 **Platform**: Native iOS & Android app, exportable to web
 **Framework**: Expo Router + React Native
 
 ## How can I edit this code?
 
-You can edit this code using your preferred code editor.
-
 ### **Use your preferred code editor**
 
-If you want to work locally using your own code editor, you can clone this repo and push changes. Pushed changes will also be reflected in Rork.
+You can work locally using your own code editor. Clone this repo and push changes to GitHub.
 
 If you are new to coding and unsure which editor to use, we recommend Cursor. If you're familiar with terminals, try Claude Code.
 
@@ -31,7 +29,7 @@ cd <YOUR_PROJECT_NAME>
 # Step 3: Install the necessary dependencies.
 bun i
 
-# Step 4: Start the instant web preview of your app in your browser, with auto-reloading of your changes
+# Step 4: Start the instant web preview of your ClubPack app in your browser, with auto-reloading of your changes
 bun run start-web
 
 # Step 5: Start iOS preview
@@ -62,7 +60,7 @@ This project is built with the most popular native mobile cross-platform technic
 
 ### **On your phone (Recommended)**
 
-1. **iOS**: Download the [Expo Go app from the App Store](https://apps.apple.com/app/expo-go/id982107779)
+1. **iOS**: Download [Expo Go](https://apps.apple.com/app/expo-go/id982107779) from the App Store
 2. **Android**: Download the [Expo Go app from Google Play](https://play.google.com/store/apps/details?id=host.exp.exponent)
 3. Run `bun run start` and scan the QR code from your development server
 
@@ -72,7 +70,7 @@ Run `bun start-web` to test in a web browser. Note: The browser preview is great
 
 ### **iOS Simulator / Android Emulator**
 
-You can test the app in Expo Go. You don't need XCode or Android Studio for most features.
+You can test ClubPack apps in Expo Go. You don't need XCode or Android Studio for most features.
 
 **When do you need Custom Development Builds?**
 
@@ -160,15 +158,17 @@ Alternative web deployment options:
 
 ## App Features
 
-The ClubPack app includes:
+The ClubPack mobile app includes:
 
 - **Cross-platform compatibility** - Works on iOS, Android, and Web
 - **File-based routing** with Expo Router
-- **Tab navigation** with customizable tabs (Home, Features, Members, Data, Profile)
-- **Event management** - View and RSVP to club events
+- **Tab navigation** with customizable tabs
 - **Member directory** - Browse and search club members
-- **TypeScript support** for better development experience
-- **Supabase integration** for authentication and data management
+- **Event management** - View events and RSVP
+- **Club features** - Access club-specific content and features
+- **User profiles** - Manage your profile and settings
+- **Authentication** - Secure login with Supabase integration
+- **TypeScript support** - Type-safe development
 - **Vector icons** with Lucide React Native
 
 ## Project Structure
@@ -177,13 +177,25 @@ The ClubPack app includes:
 ├── app/                    # App screens (Expo Router)
 │   ├── (tabs)/            # Tab navigation screens
 │   │   ├── _layout.tsx    # Tab layout configuration
-│   │   └── index.tsx      # Home tab screen
+│   │   ├── home.tsx       # Home tab screen
+│   │   ├── members.tsx    # Members directory
+│   │   ├── features.tsx   # Club features
+│   │   ├── data.tsx       # Data tab
+│   │   └── profile.tsx    # User profile
 │   ├── _layout.tsx        # Root layout
-│   ├── modal.tsx          # Modal screen example
+│   ├── login.tsx          # Login screen
+│   ├── signup.tsx         # Signup screen
+│   ├── event-detail.tsx   # Event detail screen
+│   ├── item-detail.tsx    # Item detail screen
 │   └── +not-found.tsx     # 404 screen
 ├── assets/                # Static assets
 │   └── images/           # App icons and images
+├── components/            # Reusable UI components
+│   └── ui/               # UI components (Button, Card, Input, etc.)
 ├── constants/            # App constants and configuration
+├── contexts/             # React contexts (Auth, Website)
+├── lib/                  # Library files (Supabase client)
+├── data/                 # Mock data
 ├── app.json             # Expo configuration
 ├── package.json         # Dependencies and scripts
 └── tsconfig.json        # TypeScript configuration
@@ -303,17 +315,16 @@ For mobile apps, you'll configure your app's deep linking scheme in `app.json`.
 - Check [Expo's documentation](https://docs.expo.dev/) for native APIs
 - Browse [React Native's documentation](https://reactnative.dev/docs/getting-started) for core components
 
-## About ClubPack App
+## About ClubPack
 
-ClubPack App is a native cross-platform mobile application built with React Native and Expo - the same technology stack used by Discord, Shopify, Coinbase, Instagram, and nearly 30% of the top 100 apps on the App Store.
+ClubPack is a platform for managing student clubs and organizations. This mobile app is built with React Native and Expo - the same technology stack used by Discord, Shopify, Coinbase, Instagram, and nearly 30% of the top 100 apps on the App Store.
 
-The app is production-ready and can be published to both the App Store and Google Play Store. You can also export your app to run on the web, making it truly cross-platform.
+The ClubPack mobile app is production-ready and can be published to both the App Store and Google Play Store. You can also export your app to run on the web, making it truly cross-platform.
 
 ## Features
 
-- **Club Management**: Manage clubs, members, and events
-- **Event RSVPs**: Track event attendance and RSVPs
-- **Member Directory**: Browse and search club members
-- **Features & Data**: Access club features and data
-- **User Profiles**: Customizable user profiles
-- **Authentication**: Secure user authentication with Supabase
+- **Member Management** - View and manage club members
+- **Events** - Create and RSVP to club events
+- **Features** - Access club-specific features and content
+- **Profile** - Manage your profile and settings
+- **Authentication** - Secure login with Supabase
