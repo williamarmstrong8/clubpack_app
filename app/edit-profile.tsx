@@ -29,7 +29,16 @@ export default function EditProfileScreen() {
   return (
     <ScreenWrapper style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.closeButton}>
+        <TouchableOpacity 
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace('/(tabs)/profile');
+            }
+          }} 
+          style={styles.closeButton}
+        >
           <X size={24} color={COLORS.light.text} />
         </TouchableOpacity>
         <Text variant="h3">Edit Profile</Text>

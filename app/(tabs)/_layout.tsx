@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Layers, BarChart2, User } from 'lucide-react-native';
+import { Home, Users, Calendar, User } from 'lucide-react-native';
 import { COLORS, SPACING } from '@/constants/theme';
 import { Platform } from 'react-native';
 
@@ -36,17 +36,17 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="features"
+        name="members"
         options={{
-          title: 'Features',
-          tabBarIcon: ({ color, size }) => <Layers color={color} size={size} />,
+          title: 'Members',
+          tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
         }}
       />
       <Tabs.Screen
-        name="data"
+        name="features"
         options={{
-          title: 'Data',
-          tabBarIcon: ({ color, size }) => <BarChart2 color={color} size={size} />,
+          title: 'Events',
+          tabBarIcon: ({ color, size }) => <Calendar color={color} size={size} />,
         }}
       />
       <Tabs.Screen

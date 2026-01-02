@@ -6,28 +6,49 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { COLORS, SPACING, RADIUS } from '@/constants/theme';
-import { USER } from '@/data/mockData';
 import { Image } from 'expo-image';
 import { Settings, Moon, Bell, Shield, CircleHelp, LogOut, ChevronRight, User } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProfileScreen() {
   const router = useRouter();
+  const { profile, user, signOut } = useAuth();
   const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [notifications, setNotifications] = React.useState(true);
+
+  const displayName = profile?.name || user?.email?.split('@')[0] || 'User';
+  const userEmail = user?.email || '';
+  const initials = displayName
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.replace('/');
+  };
 
   return (
     <ScreenWrapper>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            <Image source={{ uri: USER.avatarUrl }} style={styles.avatar} />
+            <View style={[styles.avatar, styles.avatarPlaceholder]}>
+              <Text variant="h2" color={COLORS.primary}>{initials}</Text>
+            </View>
             <TouchableOpacity style={styles.editAvatarBadge}>
                <User size={12} color="#FFF" />
             </TouchableOpacity>
           </View>
-          <Text variant="h2" align="center" style={styles.name}>{USER.name}</Text>
-          <Text variant="body" align="center" color={COLORS.light.textSecondary}>{USER.username}</Text>
-          <Text variant="caption" align="center" color={COLORS.light.textSecondary} style={styles.bio}>{USER.bio}</Text>
+          <Text variant="h2" align="center" style={styles.name}>{displayName}</Text>
+          <Text variant="body" align="center" color={COLORS.light.textSecondary}>{userEmail}</Text>
+          {profile?.role && (
+            <Text variant="caption" align="center" color={COLORS.primary} style={styles.role}>
+              {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
+            </Text>
+          )}
           
           <Button 
             label="Edit Profile" 
@@ -36,14 +57,6 @@ export default function ProfileScreen() {
             onPress={() => router.push('/edit-profile')} 
             style={styles.editButton}
           />
-        </View>
-
-        <View style={styles.statsRow}>
-           <StatItem value={USER.stats.posts} label="Posts" />
-           <View style={styles.statDivider} />
-           <StatItem value={USER.stats.followers} label="Followers" />
-           <View style={styles.statDivider} />
-           <StatItem value={USER.stats.following} label="Following" />
         </View>
 
         <View style={styles.section}>
@@ -101,7 +114,7 @@ export default function ProfileScreen() {
         <Button 
            label="Sign Out" 
            variant="ghost" 
-           onPress={() => router.replace('/')} 
+           onPress={handleSignOut} 
            style={styles.logoutButton}
            icon={<LogOut size={20} color={COLORS.error} />}
         />
@@ -110,13 +123,6 @@ export default function ProfileScreen() {
     </ScreenWrapper>
   );
 }
-
-const StatItem = ({ value, label }: { value: number, label: string }) => (
-  <View style={styles.statItem}>
-    <Text variant="h3">{value}</Text>
-    <Text variant="caption" color={COLORS.light.textSecondary}>{label}</Text>
-  </View>
-);
 
 const MenuItem = ({ icon, label, onPress }: { icon: React.ReactNode, label: string, onPress: () => void }) => (
    <TouchableOpacity style={styles.menuItem} onPress={onPress}>
@@ -145,6 +151,17 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
   },
+  avatarPlaceholder: {
+    backgroundColor: COLORS.light.surfaceHighlight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.light.border,
+  },
+  role: {
+    marginTop: SPACING.xs,
+    fontWeight: '600',
+  },
   editAvatarBadge: {
     position: 'absolute',
     bottom: 0,
@@ -165,22 +182,6 @@ const styles = StyleSheet.create({
   },
   editButton: {
     marginTop: SPACING.l,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: SPACING.xl,
-    paddingHorizontal: SPACING.xl,
-  },
-  statItem: {
-    alignItems: 'center',
-    flex: 1,
-  },
-  statDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: COLORS.light.border,
   },
   section: {
     paddingHorizontal: SPACING.l,

@@ -5,16 +5,21 @@ import { ScreenWrapper } from '@/components/ui/ScreenWrapper';
 import { Text } from '@/components/ui/Text';
 import { Card } from '@/components/ui/Card';
 import { COLORS, SPACING, RADIUS } from '@/constants/theme';
-import { USER, HOME_FEED } from '@/data/mockData';
+import { HOME_FEED } from '@/data/mockData';
 import { Bell, Plus, Compass, Bookmark, Share2, Heart, MessageCircle } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { profile, user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [feed, setFeed] = useState(HOME_FEED);
+
+  // Get user's display name
+  const displayName = profile?.name || user?.email?.split('@')[0] || 'User';
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -37,7 +42,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View>
           <Text variant="captionBold" color={COLORS.light.textSecondary}>Good morning,</Text>
-          <Text variant="h2">{USER.name}</Text>
+          <Text variant="h2">{displayName}</Text>
         </View>
         <TouchableOpacity 
           style={styles.iconButton}

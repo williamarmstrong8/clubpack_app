@@ -6,7 +6,7 @@ import { Text } from '@/components/ui/Text';
 import { Button } from '@/components/ui/Button';
 import { COLORS, SPACING, RADIUS } from '@/constants/theme';
 import { Image } from 'expo-image';
-import { Heart, Share2, Bookmark, MessageCircle } from 'lucide-react-native';
+import { Heart, Share2, Bookmark, MessageCircle, ArrowLeft } from 'lucide-react-native';
 
 export default function ItemDetailScreen() {
   const router = useRouter();
@@ -25,7 +25,21 @@ export default function ItemDetailScreen() {
             contentFit="cover"
           />
           <View style={styles.imageOverlay}>
-             <TouchableOpacity style={styles.backButton} onPress={() => router.back()} />
+             <TouchableOpacity 
+               style={styles.backButton} 
+               onPress={() => {
+                 if (router.canGoBack()) {
+                   router.back();
+                 } else {
+                   router.replace('/(tabs)/home');
+                 }
+               }}
+               activeOpacity={0.7}
+             >
+               <View style={styles.backButtonContent}>
+                 <ArrowLeft size={24} color="#FFF" />
+               </View>
+             </TouchableOpacity>
           </View>
         </View>
 
@@ -117,6 +131,16 @@ const styles = StyleSheet.create({
   backButton: {
     width: 40,
     height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButtonContent: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   content: {
     padding: SPACING.l,

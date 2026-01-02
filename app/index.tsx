@@ -1,20 +1,30 @@
 import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, StyleSheet, Animated, Dimensions, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenWrapper } from '@/components/ui/ScreenWrapper';
 import { Text } from '@/components/ui/Text';
-import { Button } from '@/components/ui/Button';
-import { COLORS, SPACING } from '@/constants/theme';
-import { Layers, Zap, Shield } from 'lucide-react-native';
+import { COLORS, SPACING, RADIUS } from '@/constants/theme';
+import { Users, Calendar, Zap } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useAuth } from '@/contexts/AuthContext';
 
 const { width } = Dimensions.get('window');
 
 export default function LandingScreen() {
   const router = useRouter();
+  const { user, loading } = useAuth();
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const blobAnim = useRef(new Animated.Value(0)).current;
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!loading && user) {
+      router.replace('/(tabs)/home');
+    }
+  }, [user, loading, router]);
 
   useEffect(() => {
     Animated.parallel([
@@ -51,17 +61,35 @@ export default function LandingScreen() {
     outputRange: [0, -30],
   });
 
+  // ClubPack colors: blue-600 (#2563eb) to violet-600 (#9333ea)
+  const clubpackBlue = '#2563eb';
+  const clubpackViolet = '#9333ea';
+
+  // Don't render landing page if user is authenticated (will redirect)
+  if (loading || user) {
+    return null;
+  }
+
   return (
     <ScreenWrapper style={styles.container} safeArea={false}>
       <StatusBar style="dark" />
       
-      {/* Background Decor */}
+      {/* Background Gradient Blobs */}
       <Animated.View 
         style={[
-          styles.blob, 
+          styles.blobBlue, 
           { 
             transform: [{ translateY: blobTranslateY }],
-            opacity: 0.6 
+            opacity: 0.15 
+          }
+        ]} 
+      />
+      <Animated.View 
+        style={[
+          styles.blobViolet, 
+          { 
+            transform: [{ translateY: blobTranslateY }],
+            opacity: 0.15 
           }
         ]} 
       />
@@ -70,13 +98,17 @@ export default function LandingScreen() {
         <View style={styles.header}>
           <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }] }}>
             <View style={styles.logoContainer}>
-              <Layers size={48} color={COLORS.primary} />
+              <Image
+                source={require('@/assets/images/Club-Pack-Logo.svg')}
+                style={styles.logo}
+                contentFit="contain"
+              />
             </View>
             <Text variant="h1" align="center" style={styles.title}>
-              AppTemplate
+              ClubPack
             </Text>
             <Text variant="body" align="center" color={COLORS.light.textSecondary} style={styles.subtitle}>
-              A modern mobile UI starter kit with premium components and smooth animations.
+              Build your club website, manage members, and plan events all in one platform.
             </Text>
           </Animated.View>
         </View>
@@ -87,9 +119,9 @@ export default function LandingScreen() {
             { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
           ]}
         >
-          <FeatureItem icon={<Layers size={20} color={COLORS.primary} />} text="Modern UI Kit" />
-          <FeatureItem icon={<Zap size={20} color={COLORS.warning} />} text="Fast Performance" />
-          <FeatureItem icon={<Shield size={20} color={COLORS.success} />} text="Secure & Scalable" />
+          <FeatureItem icon={<Users size={20} color={clubpackBlue} />} text="Member Management" />
+          <FeatureItem icon={<Calendar size={20} color={clubpackViolet} />} text="Event Planning" />
+          <FeatureItem icon={<Zap size={20} color={clubpackBlue} />} text="Club Websites" />
         </Animated.View>
 
         <Animated.View 
@@ -98,23 +130,22 @@ export default function LandingScreen() {
             { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }
           ]}
         >
-          <Button 
-            label="Sign Up" 
-            onPress={() => router.push('/signup')} 
-            style={styles.button}
-          />
-          <Button 
-            label="Log In" 
-            variant="secondary" 
-            onPress={() => router.push('/login')} 
-            style={styles.button}
-          />
-          <Button 
-            label="Continue as Guest" 
-            variant="ghost" 
-            onPress={() => router.replace('/home')} 
-            style={styles.ghostButton}
-          />
+          <TouchableOpacity
+            onPress={() => router.push('/login')}
+            activeOpacity={0.8}
+            style={styles.gradientButton}
+          >
+            <LinearGradient
+              colors={[clubpackBlue, clubpackViolet]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.gradientInner}
+            >
+              <Text variant="bodyBold" color="#FFFFFF" style={styles.buttonText}>
+                Log In
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </Animated.View>
       </View>
     </ScreenWrapper>
@@ -148,17 +179,16 @@ const styles = StyleSheet.create({
   logoContainer: {
     width: 80,
     height: 80,
-    backgroundColor: COLORS.light.surface,
+    backgroundColor: 'transparent',
     borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: SPACING.l,
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 10,
     alignSelf: 'center',
+  },
+  logo: {
+    width: 80,
+    height: 80,
   },
   title: {
     marginBottom: SPACING.s,
@@ -193,20 +223,37 @@ const styles = StyleSheet.create({
     gap: SPACING.m,
     marginBottom: SPACING.l,
   },
-  button: {
-    width: '100%',
-  },
-  ghostButton: {
-    marginTop: -SPACING.s,
-  },
-  blob: {
+  blobBlue: {
     position: 'absolute',
     top: -width * 0.4,
+    left: -width * 0.2,
+    width: width * 1.2,
+    height: width * 1.2,
+    borderRadius: width * 0.6,
+    backgroundColor: '#2563eb',
+  },
+  blobViolet: {
+    position: 'absolute',
+    bottom: -width * 0.3,
     right: -width * 0.2,
     width: width * 1.2,
     height: width * 1.2,
     borderRadius: width * 0.6,
-    backgroundColor: COLORS.primary,
-    opacity: 0.05,
+    backgroundColor: '#9333ea',
+  },
+  gradientButton: {
+    width: '100%',
+    borderRadius: RADIUS.m,
+    overflow: 'hidden',
+  },
+  gradientInner: {
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: SPACING.l,
+  },
+  buttonText: {
+    color: '#FFFFFF',
   },
 });

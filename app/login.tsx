@@ -1,30 +1,131 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, Animated, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ScreenWrapper } from '@/components/ui/ScreenWrapper';
 import { Text } from '@/components/ui/Text';
 import { Input } from '@/components/ui/Input';
-import { Button } from '@/components/ui/Button';
-import { COLORS, SPACING } from '@/constants/theme';
+import { COLORS, SPACING, RADIUS } from '@/constants/theme';
 import { Mail, Lock, ArrowLeft } from 'lucide-react-native';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase, type Profile } from '@/lib/supabase';
+
+const { width } = Dimensions.get('window');
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { signIn, user, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const blobAnim = React.useRef(new Animated.Value(0)).current;
 
-  const handleLogin = () => {
+  // ClubPack colors: blue-600 (#2563eb) to violet-600 (#9333ea)
+  const clubpackBlue = '#2563eb';
+  const clubpackViolet = '#9333ea';
+
+  React.useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(blobAnim, {
+          toValue: 1,
+          duration: 5000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(blobAnim, {
+          toValue: 0,
+          duration: 5000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+  }, [blobAnim]);
+
+  const blobTranslateY = blobAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -30],
+  });
+
+  // Redirect if already authenticated
+  React.useEffect(() => {
+    if (!loading && user) {
+      router.replace('/(tabs)/home');
+    }
+  }, [user, loading, router]);
+
+  const handleLogin = async () => {
+    setError('');
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
+
+    try {
+      const { error: signInError } = await signIn(email, password);
+
+      if (signInError) {
+        console.error('Error signing in:', signInError.message);
+        // Set user-friendly error message
+        if (signInError.message.includes('Invalid login credentials')) {
+          setError('Invalid email or password. Please check your credentials and try again.');
+        } else if (signInError.message.includes('Email not confirmed')) {
+          setError('Please check your email and click the confirmation link before signing in.');
+        } else {
+          setError('An error occurred during sign in. Please try again.');
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // Check user role and redirect accordingly
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single<Pick<Profile, 'role'>>();
+
+        if (profileError) {
+          console.error('Error fetching profile:', profileError);
+        }
+
+        // Redirect to home (both admin and regular users go to same place for now)
+        router.replace('/(tabs)/home');
+      }
+    } catch (err) {
+      console.error('Unexpected error:', err);
+      setError('An unexpected error occurred. Please try again.');
       setIsLoading(false);
-      router.replace('/home');
-    }, 1500);
+    }
   };
+
+  // Don't render login page if user is authenticated (will redirect)
+  if (loading || user) {
+    return null;
+  }
 
   return (
     <ScreenWrapper style={styles.container}>
+      {/* Background Gradient Blobs */}
+      <Animated.View 
+        style={[
+          styles.blobBlue, 
+          { 
+            transform: [{ translateY: blobTranslateY }],
+            opacity: 0.1 
+          }
+        ]} 
+      />
+      <Animated.View 
+        style={[
+          styles.blobViolet, 
+          { 
+            transform: [{ translateY: blobTranslateY }],
+            opacity: 0.1 
+          }
+        ]} 
+      />
+
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <ArrowLeft size={24} color={COLORS.light.text} />
@@ -37,9 +138,16 @@ export default function LoginScreen() {
       >
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
           <View style={styles.titleContainer}>
+            <View style={styles.logoContainer}>
+              <Image
+                source={require('@/assets/images/Club-Pack-Logo.svg')}
+                style={styles.logo}
+                contentFit="contain"
+              />
+            </View>
             <Text variant="h1" style={styles.title}>Welcome back</Text>
             <Text variant="body" color={COLORS.light.textSecondary}>
-              Please enter your details to sign in.
+              Sign in to your ClubPack account
             </Text>
           </View>
 
@@ -62,45 +170,40 @@ export default function LoginScreen() {
               icon={<Lock size={20} color={COLORS.light.textSecondary} />}
             />
             
+            {error ? (
+              <View style={styles.errorContainer}>
+                <Text variant="caption" color={COLORS.error} style={styles.errorText}>
+                  {error}
+                </Text>
+              </View>
+            ) : null}
+            
             <TouchableOpacity style={styles.forgotPassword}>
-              <Text variant="captionBold" color={COLORS.primary}>Forgot password?</Text>
+              <Text variant="captionBold" color={clubpackBlue}>Forgot password?</Text>
             </TouchableOpacity>
 
-            <Button
-              label="Log In"
+            <TouchableOpacity
               onPress={handleLogin}
-              isLoading={isLoading}
-              style={styles.loginButton}
-            />
-
-            <View style={styles.divider}>
-              <View style={styles.line} />
-              <Text variant="caption" color={COLORS.light.textSecondary} style={styles.orText}>OR</Text>
-              <View style={styles.line} />
-            </View>
-
-            <View style={styles.socialButtons}>
-              <Button
-                label="Continue with Google"
-                variant="outline"
-                onPress={() => {}}
-                disabled
-                style={styles.socialButton}
-              />
-              <Button
-                label="Continue with Apple"
-                variant="outline"
-                onPress={() => {}}
-                disabled
-                style={styles.socialButton}
-              />
-            </View>
-          </View>
-          
-          <View style={styles.footer}>
-            <Text variant="body" color={COLORS.light.textSecondary}>Don&apos;t have an account? </Text>
-            <TouchableOpacity onPress={() => router.push('/signup')}>
-              <Text variant="bodyBold" color={COLORS.primary}>Sign up</Text>
+              disabled={isLoading}
+              activeOpacity={0.8}
+              style={styles.gradientButton}
+            >
+              <LinearGradient
+                colors={[clubpackBlue, clubpackViolet]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradientInner}
+              >
+                {isLoading ? (
+                  <Text variant="bodyBold" color="#FFFFFF">
+                    Logging in...
+                  </Text>
+                ) : (
+                  <Text variant="bodyBold" color="#FFFFFF">
+                    Log In
+                  </Text>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -116,6 +219,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: SPACING.l,
     paddingTop: SPACING.s,
+    zIndex: 1,
   },
   backButton: {
     width: 40,
@@ -125,6 +229,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+    zIndex: 1,
   },
   scrollContent: {
     padding: SPACING.l,
@@ -133,9 +238,22 @@ const styles = StyleSheet.create({
   titleContainer: {
     marginBottom: SPACING.xl,
     marginTop: SPACING.m,
+    alignItems: 'center',
+  },
+  logoContainer: {
+    width: 64,
+    height: 64,
+    marginBottom: SPACING.l,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    width: 64,
+    height: 64,
   },
   title: {
     marginBottom: SPACING.s,
+    textAlign: 'center',
   },
   form: {
     marginBottom: SPACING.xl,
@@ -144,32 +262,45 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginBottom: SPACING.l,
   },
-  loginButton: {
+  gradientButton: {
+    width: '100%',
+    borderRadius: RADIUS.m,
+    overflow: 'hidden',
     marginBottom: SPACING.xl,
   },
-  divider: {
+  gradientInner: {
+    height: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.xl,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: COLORS.light.border,
-  },
-  orText: {
-    marginHorizontal: SPACING.m,
-  },
-  socialButtons: {
-    gap: SPACING.m,
-  },
-  socialButton: {
-    width: '100%',
-  },
-  footer: {
-    flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 'auto',
-    paddingBottom: SPACING.l,
+    paddingHorizontal: SPACING.l,
+  },
+  errorContainer: {
+    marginTop: SPACING.s,
+    marginBottom: SPACING.m,
+    padding: SPACING.s,
+    backgroundColor: COLORS.error + '10',
+    borderRadius: RADIUS.s,
+  },
+  errorText: {
+    textAlign: 'center',
+  },
+  blobBlue: {
+    position: 'absolute',
+    top: -width * 0.3,
+    left: -width * 0.2,
+    width: width * 1.2,
+    height: width * 1.2,
+    borderRadius: width * 0.6,
+    backgroundColor: '#2563eb',
+  },
+  blobViolet: {
+    position: 'absolute',
+    bottom: -width * 0.2,
+    right: -width * 0.2,
+    width: width * 1.2,
+    height: width * 1.2,
+    borderRadius: width * 0.6,
+    backgroundColor: '#9333ea',
   },
 });
